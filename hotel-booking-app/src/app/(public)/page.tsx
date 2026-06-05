@@ -29,7 +29,7 @@ export default function Homepage() {
           {/* Left Content */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-3xl lg:text-5xl font-bold text-primary leading-tight mb-4">
+              <h2 className="text-2xl lg:text-3xl font-bold text-primary leading-tight mb-4">
                 Find Your Perfect Stay Today
               </h2>
 
