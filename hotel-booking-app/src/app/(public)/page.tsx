@@ -52,8 +52,8 @@ export default function Homepage() {
           {/* Right Image */}
           <div className="flex justify-center lg:justify-end">
             <img
-              src="https://next-hotels-ai-2025.vercel.app/hero.png"
-              alt="Hotel Building"
+              src="/skynetix.png"
+              alt="SkyNetix"
               className="w-full max-w-md h-auto"
             />
           </div>
