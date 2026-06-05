@@ -30,7 +30,6 @@ import { UsersStore, useUsersStore } from "@/store/users-store";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-
 // Define the form schema
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -66,7 +65,7 @@ function HotelForm({ formType, hotelData }: HotelFormProps) {
     Array<{ file: File; preview: string }>
   >([]);
   const [existingImages, setExistingImages] = useState<string[]>(
-    hotelData?.images || []
+    hotelData?.images || [],
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,7 +138,7 @@ function HotelForm({ formType, hotelData }: HotelFormProps) {
           ...values,
           images: uploadedImagesUrls,
           status: "pending",
-          owner_id: loggedInUser?.id || 0,
+          owner_id: loggedInUser?.id,
         });
       } else {
         response = await editHotel(hotelData.id, {
@@ -422,8 +421,8 @@ function HotelForm({ formType, hotelData }: HotelFormProps) {
               {isSubmitting
                 ? "Saving..."
                 : formType === "add"
-                ? "Add Hotel"
-                : "Update Hotel"}
+                  ? "Add Hotel"
+                  : "Update Hotel"}
             </Button>
           </div>
         </form>

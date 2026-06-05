@@ -25,7 +25,7 @@ function HotelOwnersPage() {
   const [hotels, setHotels] = useState<IHotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -50,7 +50,7 @@ function HotelOwnersPage() {
   }, [loggedInUser?.id]);
 
   // Handle delete hotel
-  const handleDeleteHotel = async (hotelId: number, hotelName: string) => {
+  const handleDeleteHotel = async (hotelId: string, hotelName: string) => {
     setDeletingId(hotelId);
     try {
       const result = await deleteHotel(hotelId);
@@ -113,7 +113,7 @@ function HotelOwnersPage() {
                   <TableCell>
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${getHotelStatusColor(
-                        hotel.status
+                        hotel.status,
                       )}`}
                     >
                       {hotel.status?.toUpperCase()}

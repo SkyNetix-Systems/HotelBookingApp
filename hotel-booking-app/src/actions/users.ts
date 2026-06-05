@@ -16,7 +16,7 @@ export const registerUser = async (payload: Partial<IUser>) => {
 
     if (existingUser) {
       throw new Error(
-        "Email already registered. Please use a different email or login."
+        "Email already registered. Please use a different email or login.",
       );
     }
 
@@ -85,7 +85,7 @@ export const loginUser = async (payload: {
         role: user.role,
       },
       jwtSecret,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     // Set token in cookies
@@ -209,6 +209,84 @@ export const updateUserRole = async (id: number, role: string) => {
       success: true,
       data: data,
       message: "User role updated successfully",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+export const updateUserProfile = async (
+  userId: string,
+  payload: Partial<Omit<IUser, "id" | "created_at" | "password">>,
+) => {
+  try {
+    const { data, error } = await supabaseConfig
+      .from("user_profiles")
+      .update(payload)
+      .eq("id", userId)
+      .select();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      success: true,
+      data: data,
+      message: "Profile updated successfully",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+export const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+) => {
+  try {
+    // Get user
+    const { data: user, error: fetchError } = await supabaseConfig
+      .from("user_profiles")
+      .select("password")
+      .eq("id", userId)
+      .single();
+
+    if (!user || fetchError) {
+      throw new Error("User not found");
+    }
+
+    // Verify current password
+    const isPasswordValid = bcrypt.compareSync(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Current password is incorrect");
+    }
+
+    // Hash new password
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+    // Update password
+    const { data, error } = await supabaseConfig
+      .from("user_profiles")
+      .update({ password: hashedPassword })
+      .eq("id", userId)
+      .select();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      success: true,
+      message: "Password changed successfully",
     };
   } catch (error: any) {
     return {

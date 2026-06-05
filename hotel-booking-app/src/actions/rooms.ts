@@ -3,23 +3,25 @@
 import supabaseConfig from "@/config/supabase-config";
 import { IRoom } from "@/interfaces";
 
-export const createRoom = async (
-  payload: Omit<IRoom, "id" | "created_at">
-) => {
+export const createRoom = async (payload: Omit<IRoom, "id" | "created_at">) => {
   try {
-    const { data, error } = await supabaseConfig.from("rooms").insert([
-      {
-        name: payload.name,
-        description: payload.description,
-        type: payload.type,
-        rent_per_day: payload.rent_per_day,
-        hotel_id: payload.hotel_id,
-        owner_id: payload.owner_id,
-        status: payload.status,
-        amenities: payload.amenities,
-        images: payload.images,
-      },
-    ]);
+    const { data, error } = await supabaseConfig
+      .from("rooms")
+      .insert([
+        {
+          name: payload.name,
+          description: payload.description,
+          type: payload.type,
+          rent_per_day: payload.rent_per_day,
+          hotel_id: payload.hotel_id,
+          owner_id: payload.owner_id,
+          capacity: payload.capacity,
+          status: payload.status,
+          amenities: payload.amenities,
+          images: payload.images,
+        },
+      ])
+      .select();
 
     if (error) {
       throw new Error(error.message);
@@ -39,14 +41,15 @@ export const createRoom = async (
 };
 
 export const editRoom = async (
-  id: number,
-  payload: Partial<Omit<IRoom, "id" | "created_at">>
+  id: string,
+  payload: Partial<Omit<IRoom, "id" | "created_at">>,
 ) => {
   try {
     const { data, error } = await supabaseConfig
       .from("rooms")
       .update(payload)
-      .eq("id", id);
+      .eq("id", id)
+      .select();
 
     if (error) {
       throw new Error(error.message);
@@ -65,12 +68,13 @@ export const editRoom = async (
   }
 };
 
-export const deleteRoom = async (id: number) => {
+export const deleteRoom = async (id: string) => {
   try {
     const { data, error } = await supabaseConfig
       .from("rooms")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .select();
 
     if (error) {
       throw new Error(error.message);
@@ -89,11 +93,11 @@ export const deleteRoom = async (id: number) => {
   }
 };
 
-export const getRoomById = async (id: number) => {
+export const getRoomById = async (id: string) => {
   try {
     const { data, error } = await supabaseConfig
       .from("rooms")
-      .select("* , hotel:hotels(name, id)")
+      .select("*")
       .eq("id", id)
       .single();
 
@@ -113,11 +117,11 @@ export const getRoomById = async (id: number) => {
   }
 };
 
-export const getRoomsByOwnerId = async (owner_id: number) => {
+export const getRoomsByOwnerId = async (owner_id: string) => {
   try {
     const { data, error } = await supabaseConfig
       .from("rooms")
-      .select("* , hotel:hotels(name)")
+      .select("*")
       .eq("owner_id", owner_id)
       .order("created_at", { ascending: false });
 
@@ -137,12 +141,13 @@ export const getRoomsByOwnerId = async (owner_id: number) => {
   }
 };
 
-export const getRoomsByHotelId = async (hotel_id: number) => {
+export const getRoomsByHotelId = async (hotel_id: string) => {
   try {
     const { data, error } = await supabaseConfig
       .from("rooms")
       .select("*")
       .eq("hotel_id", hotel_id)
+      .eq("status", "available")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -165,7 +170,8 @@ export const getAllRooms = async () => {
   try {
     const { data, error } = await supabaseConfig
       .from("rooms")
-      .select("*, hotel:hotels(name), owner:user_profiles(name, email)")
+      .select("*")
+      .eq("status", "available")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -189,7 +195,7 @@ export const getActiveRooms = async () => {
     const { data, error } = await supabaseConfig
       .from("rooms")
       .select("*, hotel:hotels(name, id)")
-      .eq("status", "active")
+      .eq("status", "available")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -210,13 +216,13 @@ export const getActiveRooms = async () => {
 
 export const getFilteredActiveRooms = async (
   roomType?: string,
-  sortBy?: string
+  sortBy?: string,
 ) => {
   try {
     let query = supabaseConfig
       .from("rooms")
       .select("*, hotel:hotels(name, id)")
-      .eq("status", "active");
+      .eq("status", "available");
 
     if (roomType) {
       query = query.eq("type", roomType);

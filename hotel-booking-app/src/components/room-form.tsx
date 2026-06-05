@@ -68,10 +68,10 @@ function RoomForm({ formType, roomData }: RoomFormProps) {
     Array<{ file: File; preview: string }>
   >([]);
   const [existingImages, setExistingImages] = useState<string[]>(
-    roomData?.images || []
+    roomData?.images || [],
   );
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
-    roomData?.amenities || []
+    roomData?.amenities || [],
   );
   const [hotels, setHotels] = useState<IHotel[]>([]);
   const [loadingHotels, setLoadingHotels] = useState(false);
@@ -172,23 +172,20 @@ function RoomForm({ formType, roomData }: RoomFormProps) {
       }
 
       const rentPerDay = parseFloat(values.rent_per_day);
-      const hotelId = parseInt(values.hotel_id, 10);
 
       let response;
       if (formType === "add") {
         response = await createRoom({
           ...values,
           rent_per_day: rentPerDay,
-          hotel_id: hotelId,
           images: uploadedImagesUrls,
           amenities: selectedAmenities,
-          owner_id: loggedInUser?.id || 0,
+          owner_id: loggedInUser?.id,
         });
       } else {
         response = await editRoom(roomData.id, {
           ...values,
           rent_per_day: rentPerDay,
-          hotel_id: hotelId,
           images: uploadedImagesUrls,
           amenities: selectedAmenities,
         });
@@ -518,8 +515,8 @@ function RoomForm({ formType, roomData }: RoomFormProps) {
               {isSubmitting
                 ? "Saving..."
                 : formType === "add"
-                ? "Add Room"
-                : "Update Room"}
+                  ? "Add Room"
+                  : "Update Room"}
             </Button>
           </div>
         </form>
